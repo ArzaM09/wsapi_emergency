@@ -1,0 +1,4 @@
+python menggunakan versi 3.10
+
+- pertama kali jalankan command pip install -r Requirements.txt
+- Jalankan python wsapi.py
