@@ -38,7 +38,7 @@ class WebSocketServer:
     async def run(self):
         self.loop = asyncio.get_running_loop() 
         print(f"[Websocket] dijalankan di ws://{self.host}:{self.port}")
-        await websockets.serve(self.handler, self.host, self.port)
+        await websockets.serve(self.handler, self.host, self.port, ping_interval=5, ping_timeout=2)
         await self.sender_loop()
     
     def send_message(self, message: str):
@@ -91,6 +91,17 @@ class CommandAPI:
                     "target": target,
                     "command": actual_command
                 }
+            })
+        
+        @self.app.route("/api/status", methods=["GET"])
+        def status():
+            esp_connected = len(self.websocket_server.connected_clients)>0
+            if esp_connected > 0 :
+                status = True
+            else :
+                status = False
+            return jsonify({
+                "esp_status": status
             })
     def run(self):
         print(f"[Flask] API Dijalankan di http://{self.host}:{self.port}")
