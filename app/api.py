@@ -1,7 +1,7 @@
 from flask import Flask, request, jsonify
 
 class PerintahAPI:
-    def __init__(self, websocket_server, host='0.0.0.0', port=5000):
+    def __init__(self, websocket_server, host='0.0.0.0', port=9091):
         self.websocket_server = websocket_server
         self.app = Flask(__name__)
         self.host = host
