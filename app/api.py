@@ -10,33 +10,54 @@ class PerintahAPI:
 
     def SetupRoutes(self):
         @self.app.route("/api/trigger", methods=["POST"])
-        def trigger():
+        def checking_emergency():
+            data = request.get_json()
+            command = data.get("command")
+            target = data.get("target")
 
-            #ambil request json user
+            if not target or command is None:
+                return jsonify({"Error" : "Tidak ada request target atau command"}),400
+            
+            client_info = self.websocket_server.client_map.get(target)
+            if not client_info:
+                return jsonify({"Error":f"ESP {target} Diluar Jangkauan"}),404
+
+            esp_type = client_info.get("type")
+            if esp_type == "Emergency":
+                pesan = str(command)
+            
+            if pesan == "CEK" or pesan == "cek" :
+                self.websocket_server.KirimPesan(target, pesan)
+            else :
+                return jsonify({"Error" : "Command Salah"}),400
+
+            return jsonify({
+                "status": "success",
+                "target": target,
+                "esp_type": esp_type,
+                "sent_command": pesan
+            })
+        
+        def trigger():
             data = request.get_json()
             target = data.get("target")
             command = data.get("command")
 
             if not target or command is None:
-                return jsonify({"Error" : "Tidak ada reuquest target atau command"}), 400
-            
-            #jika ada target atau command
-            #ambil informasi ESP
+                return jsonify({"Error" : "Tidak ada request target atau command"}), 400
             client_info = self.websocket_server.client_map.get(target)
+
             if not client_info:
                 return jsonify({"Error":f"ESP {target} Diluar Jangkauan"}),404
-            
-            #kalau ada ambil tipe nya
             esp_type = client_info.get("type")
 
-            #logika command berdasarkan tipe
             if esp_type == "Emergency":
                 pesan = "E:"+str(command)
             elif esp_type == "Locater":
                 pesan = "L"+str(command)
             else:
-                pesan = str(command)
-            
+                pesan = str(command) 
+             
             self.websocket_server.KirimPesan(target, pesan)
 
             return jsonify({
