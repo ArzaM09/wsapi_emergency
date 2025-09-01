@@ -9,11 +9,11 @@ class PerintahAPI:
         self.SetupRoutes()
 
     def SetupRoutes(self):
-        @self.app.route("/api/trigger", methods=["POST"])
+        @self.app.route("/api/check_emergency", methods=["POST"])
         def checking_emergency():
             data = request.get_json()
-            command = data.get("command")
             target = data.get("target")
+            command = data.get("command")
 
             if not target or command is None:
                 return jsonify({"Error" : "Tidak ada request target atau command"}),400
@@ -37,7 +37,7 @@ class PerintahAPI:
                 "esp_type": esp_type,
                 "sent_command": pesan
             })
-        
+        @self.app.route("/api/trigger", methods=["POST"])
         def trigger():
             data = request.get_json()
             target = data.get("target")
